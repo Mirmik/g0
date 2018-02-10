@@ -12,7 +12,7 @@ static g0::id_t message_id_counter = 0;
 struct hlist_head service_htable [G0_SERVICE_TABLE_SIZE];
 
 static inline g0::id_t service_get_new_id() {
-	return ++message_id_counter; 	
+	return ++service_id_counter; 	
 }
 
 static inline g0::id_t message_get_new_id() {
@@ -57,7 +57,10 @@ uint8_t g0::send(id_t sender, id_t receiver, const char* data, size_t size) {
 
 uint8_t g0::transport_send(message* msg) {
 	service* srvs = g0::service::find(msg->rid);
-	if (srvs == nullptr) return -1;
+	if (srvs == nullptr) {
+		g0::utilize(msg);
+		return -1;
+	}
 	srvs->on_input(msg);
 	return 0;
 }
@@ -67,11 +70,13 @@ uint8_t g0::transport_reply(message* msg) {
 		g0::utilize(msg);
 		return 0;
 	}
-	service* srvs = g0::service::find(msg->sid);
-	if (srvs == nullptr) return -1;
-	msg->repled = 1;
-	srvs->on_reply(msg);
-	return 0;
+	
+	auto tmp = msg->sid;
+	msg->sid = msg->rid;
+	msg->rid = tmp;	
+	msg->repled = true;
+
+	return g0::transport_send(msg);
 }
 
 void g0::utilize(message* msg) {

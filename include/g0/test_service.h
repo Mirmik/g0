@@ -10,7 +10,6 @@ namespace g0 {
 		test_service(const char* str) : name(str) {}
 
 		void on_input(message* msg) override;
-		void on_reply(message* msg) override;
 	};
 
 	class echo_service : public g0::service {
@@ -19,7 +18,6 @@ namespace g0 {
 		echo_service(const char* str) : name(str) {}
 
 		void on_input(message* msg) override;
-		void on_reply(message* msg) override;
 	};	
 }
 
