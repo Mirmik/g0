@@ -1,6 +1,8 @@
 #include <g0/gate.h>
 #include <stdio.h>
 
+#include <gxx/print.h>
+
 void g0::vservice::on_input(message* msg) {
 	printf("g0::vservice::on_input");
 	//printf("need_to_resend");
@@ -19,28 +21,26 @@ void g0::vservice::on_input(message* msg) {
 }
 
 void g0::gate::on_recv_package(const char* data, size_t sz) {
-	g0::package_header* header = (g0::package_header*) data;
+	gxx::println("on_recv_package:");
+	gxx::print_dump(data,sz);
+	g0::package_header* header = (g0::package_header*) data;	
 
-	if (header->msgtype == 0) {
+	if (header->msgtype == CTRLPACK) {
 		g0::control_package* control = (g0::control_package*) data;
 		//control request
-
 		printf("control request\r\n");
 
-		if (control->func == 11) {
+		if (control->header.func == CTRLFUNC_CREATE) {
 			printf("open new vchannel\r\n");
-			id_t remote = control->remote_id;
-
 			vservice* vsrvs = new vservice;
-			vsrvs->remote_id = remote;
+			vsrvs->remote_id = control->create.local_id;
+			vsrvs->local_id = control->create.remote_id;
 			vsrvs->gt = this;
-
-
+			dlist_add_next(&vsrvs->chlnk, &channels);
 		}
 	}
 }
 
 void g0::gate::send_package(iovec* vec) {
 	printf("g0::gate::send_package(iovec* vec)");
-
 }

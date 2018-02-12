@@ -12,7 +12,14 @@ g0::echo_service echo1("echo1");
 g0::test_gate t1; 
 
 int main() {
-	const char* msg = "HelloWorld";
+	g0::connection con;
+	g0.open(test1, echo1);
+	g0.close();
+	
+
+	//con.close();
+
+	/*const char* msg = "HelloWorld";
 	g0::send(test1.id, echo1.id, msg, strlen(msg));
 
 	g0::test_gate t2;
@@ -20,13 +27,8 @@ int main() {
 
 	char buf[256];
 
-	buf[0] = 0;
-	buf[1] = 0;
-	buf[2] = 0;
-	buf[3] = 0;
-	buf[4] = 0;
-	buf[5] = 0;
-	buf[6] = 0;
+	int locid = 33;
+	int remid = 35;
 
-	t2.send_package(buf, 7);
+	t2.packsend_vchannel_control(locid, remid, g0::CTRLFUNC_CREATE);*/
 }
