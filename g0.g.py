@@ -9,6 +9,7 @@ module("g0.base",
 		"src/service.cpp",
 		"src/test.cpp",
 		"src/gate.cpp",
+		"src/pathfinder.cpp",
 	],
 	include_modules = [
 		submodule("gxx.include")

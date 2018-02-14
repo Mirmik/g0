@@ -20,8 +20,8 @@ static inline g0::id_t message_get_new_id() {
 }
 
 g0::message::message() {
-	stsbyte = 0;
-	qid = message_get_new_id();
+	//stsbyte = 0;
+	//qid = message_get_new_id();
 }
 
 g0::service::service() {
@@ -40,7 +40,7 @@ g0::service* g0::service::find(id_t id) {
 	return nullptr;
 }
 
-uint8_t g0::send(id_t sender, id_t receiver, const char* data, size_t size) {
+void g0::send(id_t sender, id_t receiver, const char* data, size_t size) {
 	message* msg = new message;
 	
 	void* msgdata = malloc(size);
@@ -51,11 +51,11 @@ uint8_t g0::send(id_t sender, id_t receiver, const char* data, size_t size) {
 	msg->data = msgdata;
 	msg->size = size;
 
-	uint8_t sts = g0::transport_send(msg);
-	return msg->qid;
+	uint8_t sts = g0::transport(msg);
+	//return msg->qid;
 }
 
-uint8_t g0::transport_send(message* msg) {
+uint8_t g0::transport(message* msg) {
 	service* srvs = g0::service::find(msg->rid);
 	if (srvs == nullptr) {
 		g0::utilize(msg);
@@ -66,17 +66,17 @@ uint8_t g0::transport_send(message* msg) {
 }
 
 uint8_t g0::transport_reply(message* msg) {
-	if (msg->noreply) {
+	/*if (msg->noreply) {
 		g0::utilize(msg);
 		return 0;
-	}
+	}*/
 	
 	auto tmp = msg->sid;
 	msg->sid = msg->rid;
 	msg->rid = tmp;	
-	msg->repled = true;
+	//msg->repled = true;
 
-	return g0::transport_send(msg);
+	return g0::transport(msg);
 }
 
 void g0::utilize(message* msg) {

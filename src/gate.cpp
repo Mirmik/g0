@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include <gxx/print.h>
-
+/*
 void g0::vservice::on_input(message* msg) {
 	printf("g0::vservice::on_input");
 	//printf("need_to_resend");
@@ -43,4 +43,4 @@ void g0::gate::on_recv_package(const char* data, size_t sz) {
 
 void g0::gate::send_package(iovec* vec) {
 	printf("g0::gate::send_package(iovec* vec)");
-}
+}*/

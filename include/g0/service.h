@@ -11,21 +11,15 @@ namespace g0 {
 	public:
 		message();
 		struct dlist_head qlnk; //к листу входящих сервиса.
-		id_t qid;				//ид сообщения. хэш таблицы сообщений.
-	
+		
 		id_t sid; 			//ид отправителя.
+		id_t snid; 			//ид отправителя.
+		
 		id_t rid;			//ид получателя.
-
+		id_t rnid; 			//ид получателя.
+		
 		void* data;
 		size_t size;
-
-		union {
-			struct {
-				uint8_t repled : 1;
-				uint8_t noreply : 1;
-			};
-			uint8_t stsbyte;
-		};
 	};
 
 	class service {
@@ -43,10 +37,10 @@ namespace g0 {
 		size_t size;
 	};
 
-	uint8_t send(id_t sender, id_t receiver, const char* data, size_t size);
-	uint8_t send(id_t sender, id_t receiver, const iovec* vec);
+	void send(id_t sender, id_t receiver, const char* data, size_t size);
+	void send(id_t sender, id_t receiver, const iovec* vec);
 
-	uint8_t transport_send(message* msg);
+	uint8_t transport(message* msg);
 	uint8_t transport_reply(message* msg);
 
 	void utilize(message* msg); 
