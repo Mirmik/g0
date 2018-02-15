@@ -18,7 +18,6 @@ namespace g0 {
 	struct msgpack_header : public pack_header {
 		id_t sid;
 		id_t rid;
-		uint8_t stsbyte;
 	};
 
 	struct gate {
@@ -26,16 +25,23 @@ namespace g0 {
 		virtual void send_message(message* msg);
 	};
 
-	class router {
-		virtual void retranslate(message* msg) = 0;
+//	struct posix_rdm_gate : public gate {
+//		gxx::inet::socket  
+//	};
+
+
+
+	/*class router {
+		virtual void retranslate_message(message* msg) = 0;
+		virtual void retranslate_package(char* data, size_t size) = 0;
 	};
 
-	class naive_router {
+	class naive_router : public router {
 	public:
 		gate* gt;
-		void export_message(message* msg);
+		void retranslate_message(message* msg);
 		void retranslate_package(char* data, size_t size);
-	};
+	};*/
 }
 
 #endif
