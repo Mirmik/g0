@@ -7,11 +7,17 @@ module("g0.base",
 	include_paths = ["include"],
 	sources = [
 		"src/service.cpp",
+		"src/network.cpp",
 		"src/test.cpp",
-#		"src/gate.cpp",
-#		"src/pathfinder.cpp",
 	],
+
 	include_modules = [
 		submodule("gxx.include")
+	],
+)
+
+module("g0.inet",
+	sources = [
+		"src/udpgate.cpp",
 	],
 )

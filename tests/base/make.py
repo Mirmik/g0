@@ -12,6 +12,7 @@ application("target",
 
 	include_modules = [
 		submodule("g0.base"),
+		submodule("g0.inet"),
 		submodule("gxx.print", "cout"),
 		submodule("gxx.dprint", "cout"),
 		submodule("gxx"),
