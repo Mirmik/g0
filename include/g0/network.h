@@ -2,6 +2,7 @@
 #define G0_NETWORK_H
 
 #include <g0/service.h>
+#include <gxx/print.h>
 
 namespace g0 {
 	constexpr id_t LOCAL_NODE = 0xFFFF;
@@ -11,55 +12,50 @@ namespace g0 {
 
 	extern id_t node_id;
 
-	struct address {
-		id_t node;
-		id_t serv;
-	};
-
-	struct package_header {
-		id_t snid;
-		id_t rnid;
-		uint8_t packtype;
-	};
-
-	struct message_header : public package_header {
-		id_t sid;
-		id_t rid;
-	};
-
 	struct pkb {
-		union {
-			char* buffer;
-			package_header* pack;
-		};
-		size_t size;
+		char* buffer;
+		char* raddr;
+		char* saddr;
+		char* data;
+		
+		uint8_t addrlen;
+		uint8_t* stage;
 
-		pkb(void* data, size_t size) {
-			buffer = (char*) data;
-			this->size = size;
+		size_t datalen;
+
+		pkb(char* data, size_t size);
+
+		size_t printTo(gxx::io::ostream& o) const {
+			gxx::fprint_to(o, "(addrlen:{},stage:{},datalen:{})", addrlen, stage, datalen);
 		}
 	};
 
-	struct gate {
-		virtual bool send(id_t to, const char* data, size_t size) = 0;
-		virtual bool send(id_t to, const char* data1, size_t size1, const char* data2, size_t size2) = 0;
-		
-		void on_package_receive(char* data, size_t sz);
-	};
+	void form_package_header(char* pack, const char* raddr, uint8_t addrlen);
 
+	struct gate {
+		virtual bool translate->
+
+	/*	virtual bool send(id_t to, const char* data, size_t size) = 0;
+		virtual bool send(id_t to, const char* data1, size_t size1, const char* data2, size_t size2) = 0;
+
+		void on_package_receive(char* data, size_t sz);
+	*/};
+/*
 	void set_gates(gate**);
 	void set_node_id(id_t n);
-
-	bool retranslate_package(g0::pkb pack, bool external);
-	bool translate_package(g0::pkb pack);
+*/
+	bool retranslate_package(g0::pkb* pack);
+	bool receive_package(g0::pkb* pack);
+/*	bool translate_package(g0::pkb pack);
 	bool receive_package(g0::pkb pack);
+	*/
 
 	/*struct inet_gate : public gate {
 		void send(char* data, size_t size) override;
 	};*/
 
 //	struct posix_rdm_gate : public ge {
-//		gxx::inet::socket  
+//		gxx::inet::socket
 //	};
 
 	/*class router {

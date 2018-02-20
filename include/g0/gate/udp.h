@@ -6,7 +6,7 @@
 
 namespace g0 {
 
-	struct udp_gate_address {
+	/*struct udp_gate_address {
 		id_t node;
 		gxx::hostaddr addr;
 		uint16_t port;
@@ -21,7 +21,7 @@ namespace g0 {
 
 		bool send(id_t node, const char* data, size_t size) override;
 		bool send(id_t node, const char* data1, size_t size1, const char* data2, size_t size2) override;
-	};
+	};*/
 
 }
 

@@ -6,11 +6,11 @@
 
 namespace g0 {
 
-	class reliable_stream_gate : public g0::gate {
+	/*class reliable_stream_gate : public g0::gate {
 		void send(char* data, size_t size) {
 
 		}
-	};
+	};*/
 
 }
 
