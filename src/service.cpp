@@ -69,7 +69,8 @@ g0::id_t g0::message_read_next_id(g0::message* msg) {
 void g0::transport(g0::message* msg) {
 	gxx::println("g0::transport");
 	g0::id_t rid = g0::message_read_next_id(msg);
-	
+	gxx::println("rid:", rid);
+
 	service* srvs = g0::service::find(rid);
 	if (srvs == nullptr) {
 		gxx::println("warn: g0::transport. wrong_adress. utilize.");
@@ -103,7 +104,8 @@ void g0::utilize(message* msg) {
 void g0::message_init(g0::message* pkb, const char* raddr, uint8_t rlen, const char* data, size_t dlen) {
 	dlist_init_list(&pkb->lnk);
 	pkb->datalen = dlen;
-	pkb->buffer = (char*) malloc(2 + rlen * 2 + dlen);
+	pkb->flen = 2 + rlen * 2 + dlen;
+	pkb->buffer = (char*) malloc(pkb->flen);
 	pkb->raddr = pkb->buffer + 2;
 	pkb->saddr = pkb->buffer + 2 + rlen; 
 	pkb->data =  pkb->buffer + 2 + rlen * 2;

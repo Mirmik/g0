@@ -20,6 +20,7 @@ namespace g0 {
 
 		char* data;		
 		size_t datalen;
+		size_t flen;
 
 		size_t printTo(gxx::io::ostream& o) const {
 			gxx::fprint_to(o, "(addrlen:{},stage:{},datalen:{})", addrlen, stage, datalen);
