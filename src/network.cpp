@@ -31,11 +31,11 @@ void g0::gate::send_message(message* msg) {
 	g0::utilize(msg);
 }
 */
-static g0::gate** __gates;
+/*static g0::gate** __gates;
 
 void g0::set_gates(g0::gate** ptr) {
 	__gates = ptr;
-}
+}*/
 /*
 bool g0::receive_package(g0::pkb pack) {
 	switch (pack.pack->packtype) {
@@ -50,7 +50,7 @@ bool g0::receive_package(g0::pkb pack) {
 	} 
 }*/
 
-g0::pkb::pkb(char* data, size_t size) {
+/*g0::pkb::pkb(char* data, size_t size) {
 	addrlen = * (uint8_t*) data;
 	stage = (uint8_t*) (data + 1);
 	raddr = data + 2;
@@ -73,7 +73,7 @@ bool g0::receive_package(g0::pkb* pkb) {
 
 bool g0::retranslate_package(g0::pkb* pkb) {
 	gxx::println("g0::retranslate_package");
-	if (pkb->addrlen == pkb->stage) {
+	if (pkb->addrlen == *pkb->stage) {
 		g0::receive_package(pkb);
 	} else {
 		g0::gate** gt = __gates; 
@@ -85,7 +85,7 @@ bool g0::retranslate_package(g0::pkb* pkb) {
 
 		bool ret;
 		while (*gt != nullptr) {
-			ret = gt->translate(pkb);
+			ret = (*gt)->translate(pkb);
 			if (ret) return true;
 		}
 

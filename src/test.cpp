@@ -4,13 +4,13 @@
 #include <stdio.h>
 
 void g0::test_service::on_input(g0::message* msg) {
-	printf("%s input message: \n\tsid: %d\n\trid: %d\n\ttxt: %*s\n\t", name, msg->sid, msg->rid, (int)msg->size, (char*)msg->data);
+	printf("%s input message: len: %d txt: %*s\n", name, (int)msg->datalen, (int)msg->datalen, (char*)msg->data);
 	g0::utilize(msg);
 }
 
 void g0::echo_service::on_input(g0::message* msg) {
-	printf("%s replied message: \n\tsid: %d\n\trid: %d\n\ttxt: %*s\n\t", name, msg->sid, msg->rid, (int)msg->size, (char*)msg->data);
-	g0::transport_reply(msg);
+	//printf("%s replied message: \n\tsid: %d\n\trid: %d\n\ttxt: %*s\n\t", name, msg->sid, msg->rid, (int)msg->size, (char*)msg->data);
+	//g0::utilize(msg);
 }
 
 /*void g0::test_gate::send_package(const char* data, size_t sz) {

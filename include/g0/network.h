@@ -5,14 +5,16 @@
 #include <gxx/print.h>
 
 namespace g0 {
-	constexpr id_t LOCAL_NODE = 0xFFFF;
-	constexpr id_t NAIVE_NODE = 0xFFFF;
-	constexpr uint8_t PACKTYPE_MESSAGE = 0x02;
+	//constexpr id_t LOCAL_NODE = 0xFFFF;
+	//constexpr id_t NAIVE_NODE = 0xFFFF;
+/*	constexpr uint8_t PACKTYPE_MESSAGE = 0x02;
 	constexpr uint8_t PACKTYPE_TEST = 0x03;
 
-	extern id_t node_id;
+	//extern id_t node_id;
 
 	struct pkb {
+		dlist_head lnk;
+
 		char* buffer;
 		char* raddr;
 		char* saddr;
@@ -32,20 +34,23 @@ namespace g0 {
 
 	void form_package_header(char* pack, const char* raddr, uint8_t addrlen);
 
-	struct gate {
-		virtual bool translate->
+	/*struct gate {
+		virtual bool translate(g0::pkb* pkb) {
+		void on_package_receive(char* buf, );
+	}
 
 	/*	virtual bool send(id_t to, const char* data, size_t size) = 0;
 		virtual bool send(id_t to, const char* data1, size_t size1, const char* data2, size_t size2) = 0;
 
 		void on_package_receive(char* data, size_t sz);
-	*/};
-/*
-	void set_gates(gate**);
-	void set_node_id(id_t n);
-*/
-	bool retranslate_package(g0::pkb* pack);
-	bool receive_package(g0::pkb* pack);
+	*/
+	//};
+
+	//void set_gates(gate**);
+//	void set_node_id(id_t n);
+//*/
+//	bool retranslate_package(g0::pkb* pack);
+//	bool receive_package(g0::pkb* pack);
 /*	bool translate_package(g0::pkb pack);
 	bool receive_package(g0::pkb pack);
 	*/
