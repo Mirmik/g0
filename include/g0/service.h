@@ -7,6 +7,8 @@
 
 namespace g0 {
 
+	using id_t = uint16_t;
+
 	struct message {
 		dlist_head lnk;
 
@@ -26,12 +28,13 @@ namespace g0 {
 			gxx::fprint_to(o, "(addrlen:{},stage:{},datalen:{})", addrlen, stage, datalen);
 		}
 	};
+	void service_table_init();
 
 	void message_init(g0::message* pkb, const char* raddr, uint8_t rlen, const char* data, size_t dlen);
-	void transport(g0::message* pkb);
+	void message_parse(g0::message* pkb, char* data, size_t size);
+	void transport(g0::message* pkb, id_t sid);
 
-	using id_t = uint16_t;
-	id_t message_read_next_id(g0::message* msg);
+	//id_t message_read_next_id(g0::message* msg);
 
 	
 /*	class message {

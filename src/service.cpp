@@ -15,6 +15,12 @@ static inline g0::id_t service_get_new_id() {
 	return ++service_id_counter; 	
 }
 
+/*void g0::service_table_init() {
+	for (hlist_head* it = service_htable; it != service_htable + G0_SERVICE_TABLE_SIZE; ++it) {
+		hlist_init_head(it);
+	}
+}*/
+
 /*static inline g0::id_t message_get_new_id() {
 	return ++message_id_counter; 	
 }
@@ -29,12 +35,12 @@ void g0::registry_service(g0::service* srvs) {
 	hlist_add_next(&srvs->hlnk, &service_htable[srvs->id % G0_SERVICE_TABLE_SIZE].first);
 }
 
-void g0::registry_service(g0::service* srvs, id_t id) {
+void g0::registry_service(g0::service* srvs, g0::id_t id) {
 	srvs->id = id;
 	hlist_add_next(&srvs->hlnk, &service_htable[srvs->id % G0_SERVICE_TABLE_SIZE].first);
 }
 
-g0::service* g0::service::find(id_t id) {
+g0::service* g0::service::find(g0::id_t id) {
 	struct hlist_node* it;
 	struct g0::service* entry;
 	size_t cell = id % G0_SERVICE_TABLE_SIZE;
@@ -60,18 +66,22 @@ void g0::send(id_t sender, id_t receiver, const char* data, size_t size) {
 	//return msg->qid;
 }
 */
-g0::id_t g0::message_read_next_id(g0::message* msg) {
-	g0::id_t rid = *(id_t*)(msg->raddr + *msg->stage);
-	*msg->stage += sizeof(id_t);
-	return rid;
-}
+//g0::id_t g0::message_read_next_id(g0::message* msg) {
+//	return rid;
+//}
 
-void g0::transport(g0::message* msg) {
+void g0::transport(g0::message* msg, g0::id_t sid) {
 	gxx::println("g0::transport");
-	g0::id_t rid = g0::message_read_next_id(msg);
-	gxx::println("rid:", rid);
+	gxx::print("to: ");
+	gxx::printhex(msg->raddr, msg->addrlen);
+	gxx::println();
+	g0::id_t rid = *(g0::id_t*)(msg->raddr + *msg->stage);
+	*msg->stage += sizeof(g0::id_t);
+	*(g0::id_t*)(msg->saddr + msg->addrlen - *msg->stage) = sid; 
+	//gxx::println("rid:", rid);
 
 	service* srvs = g0::service::find(rid);
+	gxx::println(srvs);
 	if (srvs == nullptr) {
 		gxx::println("warn: g0::transport. wrong_adress. utilize.");
 		g0::utilize(msg);
@@ -102,8 +112,9 @@ void g0::utilize(message* msg) {
 }
 
 void g0::message_init(g0::message* pkb, const char* raddr, uint8_t rlen, const char* data, size_t dlen) {
-	dlist_init_list(&pkb->lnk);
+//	dlist_init_list(&pkb->lnk);
 	pkb->datalen = dlen;
+	pkb->addrlen = rlen;
 	pkb->flen = 2 + rlen * 2 + dlen;
 	pkb->buffer = (char*) malloc(pkb->flen);
 	pkb->raddr = pkb->buffer + 2;
@@ -114,4 +125,15 @@ void g0::message_init(g0::message* pkb, const char* raddr, uint8_t rlen, const c
 	* pkb->buffer = rlen;
 	memcpy(pkb->raddr, raddr, rlen);
 	memcpy(pkb->data,  data, dlen);
+}
+
+void g0::message_parse(g0::message* pkb, char* data, size_t size) {
+	pkb->addrlen = * (uint8_t*) data;
+	pkb->buffer = data;
+	pkb->stage = (uint8_t*) (pkb->buffer + 1);
+	pkb->raddr = pkb->buffer + 2;
+	pkb->saddr = pkb->buffer + 2 + pkb->addrlen; 
+	pkb->data =  pkb->buffer + 2 + pkb->addrlen * 2;
+	pkb->flen = size;
+	pkb->datalen = size - pkb->addrlen * 2 - 2;
 }

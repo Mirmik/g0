@@ -1,11 +1,32 @@
 #include <gxx/print.h> 
-#include <gxx/inet/dgramm.h>
+#include <g0/gate/udp.h>
+#include <g0/test_service.h>
+
+#include <fcntl.h>
+#include <signal.h>
+
+#include <unistd.h>
+
+g0::echo_service echo1("echo");
+g0::udp_gate ugate(11001);
+
+void signal_callback_handler(int sig) {
+	ugate.read_handler();
+}
 
 int main() {
-	gxx::inet::udp_socket usock("127.0.0.1", 11001);
+	ugate.add("127.0.0.1", 11002);
+	int ufd = ugate.get_fd();
 
-	char buf[128];
-	int sz = usock.recvfrom(buf, 128, nullptr);
+	fcntl(ufd, F_SETOWN, getpid());
+	fcntl(ufd, F_SETSIG, SIGUSR1);
+	fcntl(ufd,F_SETFL,fcntl(ufd,F_GETFL) | O_NONBLOCK | O_ASYNC); 
+   	signal(SIGUSR1, signal_callback_handler);
 
-	gxx::print_dump((void*)buf, sz);
+	g0::registry_service(&ugate, 100);
+	g0::registry_service(&echo1, 1);
+
+	while(1) {
+		sleep(1);
+	}
 }

@@ -9,6 +9,15 @@ void g0::test_service::on_input(g0::message* msg) {
 }
 
 void g0::echo_service::on_input(g0::message* msg) {
+	gxx::println("echo:");
+	gxx::print("saddr: "); 
+	gxx::printhex(msg->saddr, msg->addrlen); 
+	gxx::println();
+		
+	memcpy(msg->raddr, msg->saddr, msg->addrlen);
+	*msg->stage = 0;
+
+	g0::transport(msg, id);	
 	//printf("%s replied message: \n\tsid: %d\n\trid: %d\n\ttxt: %*s\n\t", name, msg->sid, msg->rid, (int)msg->size, (char*)msg->data);
 	//g0::utilize(msg);
 }

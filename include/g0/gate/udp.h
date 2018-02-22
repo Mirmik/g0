@@ -7,24 +7,29 @@
 namespace g0 {
 
 	struct udp_gate_address {
-		id_t node;
 		gxx::hostaddr addr;
 		uint16_t port;
+		udp_gate_address(gxx::hostaddr& str, int port) : addr(str), port(port) {}
 	};
 
 	class udp_gate : public g0::service {
 	public:
 		gxx::inet::udp_socket sock;
 
-		udp_gate_address* table;
-		udp_gate(unsigned int port, udp_gate_address* table) : table(table), sock("0.0.0.0", port) {}
+		std::vector<udp_gate_address> table;
+
+		//udp_gate_address* table;
+		udp_gate(unsigned int port) : sock("0.0.0.0", port) {}
+
+		void add(gxx::hostaddr addr, int port) {
+			table.emplace_back(addr, port);
+		}
 
 		void on_input(g0::message*) override;
 
-	//	bool send(id_t node, const char* data, size_t size) override;
-	//	bool send(id_t node, const char* data1, size_t size1, const char* data2, size_t size2) override;
+		void read_handler();
+		int get_fd() { return sock.fd; }
 	};
-
 }
 
 #endif
