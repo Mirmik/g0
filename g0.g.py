@@ -7,7 +7,6 @@ module("g0.base",
 	include_paths = ["include"],
 	sources = [
 		"src/service.cpp",
-		"src/network.cpp",
 		"src/test.cpp",
 	],
 

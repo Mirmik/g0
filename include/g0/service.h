@@ -28,30 +28,12 @@ namespace g0 {
 			gxx::fprint_to(o, "(addrlen:{},stage:{},datalen:{})", addrlen, stage, datalen);
 		}
 	};
-	void service_table_init();
 
+	void service_table_init();
 	void message_init(g0::message* pkb, const char* raddr, uint8_t rlen, const char* data, size_t dlen);
 	void message_parse(g0::message* pkb, char* data, size_t size);
 	void transport(g0::message* pkb, id_t sid);
 
-	//id_t message_read_next_id(g0::message* msg);
-
-	
-/*	class message {
-	public:
-		message();
-		struct dlist_head qlnk; //к листу входящих сервиса.
-		
-		id_t sid; 			//ид отправителя.
-		id_t snid; 			//ид отправителя.
-		
-		id_t rid;			//ид получателя.
-		id_t rnid; 			//ид получателя.
-		
-		void* data;
-		size_t size;
-	};
-*/
 	class service {
 	public:
 		struct hlist_node hlnk;		//к таблице сервисов.
@@ -64,17 +46,6 @@ namespace g0 {
 	void registry_service(g0::service* srvs);
 	void registry_service(g0::service* srvs, id_t id);
 
-/*	struct iovec {
-		void* data;
-		size_t size;
-	};
-
-	void send(id_t sender, id_t receiver, const char* data, size_t size);
-	void send(id_t sender, id_t receiver, const iovec* vec);
-
-	uint8_t transport(message* msg);
-	uint8_t transport_reply(message* msg);
-*/
 	void utilize(message* msg);
 }
 

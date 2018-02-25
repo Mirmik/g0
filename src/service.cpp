@@ -3,7 +3,6 @@
 #include <string.h>
 
 static g0::id_t service_id_counter = 0;
-//static g0::id_t message_id_counter = 0;
 
 #ifndef G0_SERVICE_TABLE_SIZE
 #define G0_SERVICE_TABLE_SIZE 20
@@ -15,21 +14,6 @@ static inline g0::id_t service_get_new_id() {
 	return ++service_id_counter; 	
 }
 
-/*void g0::service_table_init() {
-	for (hlist_head* it = service_htable; it != service_htable + G0_SERVICE_TABLE_SIZE; ++it) {
-		hlist_init_head(it);
-	}
-}*/
-
-/*static inline g0::id_t message_get_new_id() {
-	return ++message_id_counter; 	
-}
-
-g0::message::message() {
-	//stsbyte = 0;
-	//qid = message_get_new_id();
-}
-*/
 void g0::registry_service(g0::service* srvs) {
 	srvs->id = service_get_new_id();
 	hlist_add_next(&srvs->hlnk, &service_htable[srvs->id % G0_SERVICE_TABLE_SIZE].first);
@@ -50,61 +34,20 @@ g0::service* g0::service::find(g0::id_t id) {
 	}
 	return nullptr;
 }
-/*
-void g0::send(id_t sender, id_t receiver, const char* data, size_t size) {
-	message* msg = new message;
-	
-	void* msgdata = malloc(size);
-	memcpy(msgdata, data, size);
-
-	msg->sid = sender;
-	msg->rid = receiver;
-	msg->data = msgdata;
-	msg->size = size;
-
-	uint8_t sts = g0::transport(msg);
-	//return msg->qid;
-}
-*/
-//g0::id_t g0::message_read_next_id(g0::message* msg) {
-//	return rid;
-//}
 
 void g0::transport(g0::message* msg, g0::id_t sid) {
-	gxx::println("g0::transport");
-	gxx::print("to: ");
-	gxx::printhex(msg->raddr, msg->addrlen);
-	gxx::println();
 	g0::id_t rid = *(g0::id_t*)(msg->raddr + *msg->stage);
 	*msg->stage += sizeof(g0::id_t);
 	*(g0::id_t*)(msg->saddr + msg->addrlen - *msg->stage) = sid; 
-	//gxx::println("rid:", rid);
 
 	service* srvs = g0::service::find(rid);
-	gxx::println(srvs);
 	if (srvs == nullptr) {
-		gxx::println("warn: g0::transport. wrong_adress. utilize.");
 		g0::utilize(msg);
 		return;
 	}
 	
 	srvs->on_input(msg);
-	//return 0;
 }
-/*
-uint8_t g0::transport_reply(message* msg) {
-	/*if (msg->noreply) {
-		g0::utilize(msg);
-		return 0;
-	}*/
-	
-/*	auto tmp = msg->sid;
-	msg->sid = msg->rid;
-	msg->rid = tmp;	
-	//msg->repled = true;
-
-	return g0::transport(msg);
-}*/
 
 void g0::utilize(message* msg) {
 	free(msg->buffer);
@@ -112,7 +55,6 @@ void g0::utilize(message* msg) {
 }
 
 void g0::message_init(g0::message* pkb, const char* raddr, uint8_t rlen, const char* data, size_t dlen) {
-//	dlist_init_list(&pkb->lnk);
 	pkb->datalen = dlen;
 	pkb->addrlen = rlen;
 	pkb->flen = 2 + rlen * 2 + dlen;

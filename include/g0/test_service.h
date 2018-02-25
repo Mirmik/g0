@@ -8,7 +8,6 @@ namespace g0 {
 	public:
 		const char* name;
 		test_service(const char* str) : name(str) {}
-
 		void on_input(message* msg) override;
 	};
 
@@ -16,7 +15,6 @@ namespace g0 {
 	public:
 		const char* name;
 		echo_service(const char* str) : name(str) {}
-
 		void on_input(message* msg) override;
 	};	
 }
