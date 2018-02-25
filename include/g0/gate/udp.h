@@ -18,11 +18,15 @@ namespace g0 {
 		std::vector<udp_gate_address> table;
 
 		udp_gate(unsigned int port) : sock("0.0.0.0", port) {}
+		udp_gate() {}
 
 		void add(gxx::hostaddr addr, int port) { table.emplace_back(addr, port); }
 		void on_input(g0::message*) override;
 		void read_handler();
 		int get_fd() { return sock.fd; }
+		void init(unsigned int port) {
+			sock.bind("0.0.0.0", port);
+		}
 	};
 }
 
