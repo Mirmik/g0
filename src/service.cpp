@@ -36,17 +36,33 @@ g0::service* g0::service::find(g0::id_t id) {
 }
 
 void g0::transport(g0::message* msg, g0::id_t sid) {
-	g0::id_t rid = *(g0::id_t*)(msg->raddr + *msg->stage);
-	*msg->stage += sizeof(g0::id_t);
-	*(g0::id_t*)(msg->saddr + msg->addrlen - *msg->stage) = sid; 
+	gxx::println("g0::transport, sid:", sid);
+	g0::id_t rid= g0::read_stage(msg);
 
 	service* srvs = g0::service::find(rid);
 	if (srvs == nullptr) {
+		if (msg->header->buserr_notify) {
+			g0::buserror(msg, sid);
+			return;
+		}
 		g0::utilize(msg);
 		return;
 	}
 	
+	g0::mark_stage(msg, sid);
 	srvs->on_input(msg);
+}
+
+g0::id_t g0::read_stage(g0::message* msg) {
+	return *(g0::id_t*)(msg->raddr + msg->header->stage);
+}
+
+void g0::mark_stage(g0::message* msg, g0::id_t id) {
+	msg->header->stage += sizeof(g0::id_t);
+	*(g0::id_t*)(msg->saddr + msg->header->addrlen - msg->header->stage) = id;
+
+	//gxx::println(msg->header->stage);
+	//gxx::printhex(msg->saddr, msg->header->addrlen);
 }
 
 void g0::utilize(message* msg) {
@@ -54,28 +70,52 @@ void g0::utilize(message* msg) {
 	delete msg;
 }
 
-void g0::message_init(g0::message* pkb, const char* raddr, uint8_t rlen, const char* data, size_t dlen) {
-	pkb->datalen = dlen;
-	pkb->addrlen = rlen;
-	pkb->flen = 2 + rlen * 2 + dlen;
+void g0::message_init(g0::message* pkb, const g0::id_t* raddr, uint8_t rlen, const char* data, size_t dlen) {
+	pkb->flen = sizeof(message_header) + rlen * 2 + dlen;
 	pkb->buffer = (char*) malloc(pkb->flen);
-	pkb->raddr = pkb->buffer + 2;
-	pkb->saddr = pkb->buffer + 2 + rlen; 
-	pkb->data =  pkb->buffer + 2 + rlen * 2;
-	pkb->stage = (uint8_t*) (pkb->buffer + 1);
-	* pkb->stage = 0;
-	* pkb->buffer = rlen;
+
+	pkb->header->datalen = dlen;
+	pkb->header->addrlen = rlen;
+	pkb->header->stage = 0;
+	
+	pkb->raddr = (char*)(pkb->header + 1);
+	pkb->saddr = pkb->raddr + rlen; 
+	pkb->data =  pkb->saddr + rlen;
+
+	pkb->header->buserr_notify = true;
+	
 	memcpy(pkb->raddr, raddr, rlen);
 	memcpy(pkb->data,  data, dlen);
 }
 
+//void g0::message_init(g0::message* pkb, std::initializer_list<g0::id_t> rvec, uint8_t rlen, const char* data, size_t dlen) {
+//	id_t buf[rvec.size() * sizeof(g0::id_t)];
+//	std::copy(rvec.begin(), rvec.end(), buf);
+//}
+
 void g0::message_parse(g0::message* pkb, char* data, size_t size) {
-	pkb->addrlen = * (uint8_t*) data;
 	pkb->buffer = data;
-	pkb->stage = (uint8_t*) (pkb->buffer + 1);
-	pkb->raddr = pkb->buffer + 2;
-	pkb->saddr = pkb->buffer + 2 + pkb->addrlen; 
-	pkb->data =  pkb->buffer + 2 + pkb->addrlen * 2;
+	pkb->raddr = (char*)(pkb->header + 1);
+	pkb->saddr = pkb->raddr + pkb->header->addrlen; 
+	pkb->data =  pkb->saddr + pkb->header->addrlen;
 	pkb->flen = size;
-	pkb->datalen = size - pkb->addrlen * 2 - 2;
+}
+
+void g0::buserror(g0::message* msg, g0::id_t sid) {
+	gxx::println("warn: buserror. utilize message");
+	g0::utilize(msg);
+
+/*	gxx::println("g0::buserror, sid:", sid);
+	if (msg->header->buserr_notify == false) {
+		gxx::println("buserror_notify prevent. utilize message.");	
+		g0::utilize(msg);
+		return;
+	} 
+
+	msg->header->type = G0_ERROR_BUSERR;
+	msg->header->errarg8_0 = msg->header->stage;
+	msg->header->stage = msg->header->addrlen - msg->header->stage;
+	msg->header->buserr_notify = false;
+
+	g0::transport(msg, sid);*/
 }

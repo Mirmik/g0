@@ -4,6 +4,8 @@
 #include <g0/service.h>
 #include <gxx/inet/dgramm.h>
 
+#include <unordered_map>
+
 namespace g0 {
 
 	struct udp_gate_address {
@@ -11,7 +13,7 @@ namespace g0 {
 		uint16_t port;
 		bool temporary;
 		id_t node;
-		udp_gate_address(gxx::hostaddr& str, int port, bool temporary) : addr(str), port(port), temporary(temporary) {}
+		udp_gate_address(gxx::hostaddr& str, int port) : addr(str), port(port) {}
 	};
 
 	class udp_gate : public g0::service {
@@ -19,7 +21,7 @@ namespace g0 {
 		int idcounter = 0;
 
 		gxx::inet::udp_socket sock;
-		std::unordered_map<std::pair<gxx::inet::hostaddr, int>, udp_gate_address*> addrmap; 
+		std::unordered_map<gxx::inet::netaddr, udp_gate_address*> addrmap; 
 		std::unordered_map<id_t, udp_gate_address*> idmap;
 
 	public:	
@@ -27,7 +29,7 @@ namespace g0 {
 		udp_gate(unsigned int port) : sock("0.0.0.0", port) {}
 		void init(unsigned int port) { sock.bind("0.0.0.0", port); }
 
-		void add(gxx::hostaddr addr, int port) { }
+		id_t add(gxx::hostaddr addr, int port, bool temporary = false);
 		void on_input(g0::message*) override;
 		void read_handler();
 		int get_fd() { return sock.fd; }

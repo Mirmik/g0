@@ -15,7 +15,6 @@ void signal_callback_handler(int sig) {
 }
 
 int main() {
-	ugate.add("127.0.0.1", 11002);
 	int ufd = ugate.get_fd();
 
 	fcntl(ufd, F_SETOWN, getpid());
@@ -23,8 +22,8 @@ int main() {
 	fcntl(ufd,F_SETFL,fcntl(ufd,F_GETFL) | O_NONBLOCK | O_ASYNC); 
    	signal(SIGUSR1, signal_callback_handler);
 
-	g0::registry_service(&ugate, 100);
-	g0::registry_service(&echo1, 1);
+	g0::registry_service(&ugate, 8);
+	g0::registry_service(&echo1, 0xFFFF);
 
 	while(1) {
 		sleep(1);

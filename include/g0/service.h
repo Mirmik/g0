@@ -9,30 +9,66 @@ namespace g0 {
 
 	using id_t = uint16_t;
 
+	constexpr uint8_t G0_MESSAGE = 0x00;
+	//constexpr uint8_t G0_ERROR = 0x01;
+	constexpr uint8_t G0_HANDSHAKE = 0x02;
+
+	constexpr uint8_t G0_POLICY_NORELIABLE = 0x00;
+	constexpr uint8_t G0_POLICY_RELIABLE = 0x01;
+	constexpr uint8_t G0_POLICY_RELIABLE_ONCE = 0x02;
+
+	constexpr uint8_t G0_ERROR_BUSERR = 0x20;
+
+	struct message_header {
+		uint8_t type;
+		uint8_t addrlen;
+		uint8_t stage;
+
+		union {
+			uint16_t datalen;
+			uint16_t errarg16;
+			struct {
+				uint8_t errarg8_0;
+				uint8_t errarg8_1;
+			};
+		};
+		
+		union {
+			uint8_t flags;
+			struct {
+				uint8_t buserr_notify : 1;
+				uint8_t policy : 2;
+			};
+		};
+	};
+
 	struct message {
 		dlist_head lnk;
 
-		char* buffer;
-
-		uint8_t addrlen;
-		uint8_t* stage;
+		union {
+			char* buffer;
+			message_header* header;
+		};
 
 		char* raddr;
 		char* saddr;
+		char* data;	
 
-		char* data;		
-		size_t datalen;
 		size_t flen;
 
 		size_t printTo(gxx::io::ostream& o) const {
-			gxx::fprint_to(o, "(addrlen:{},stage:{},datalen:{})", addrlen, stage, datalen);
+			gxx::fprint_to(o, "(addrlen:{},stage:{},datalen:{})", header->addrlen, header->stage, header->datalen);
 		}
 	};
 
 	void service_table_init();
-	void message_init(g0::message* pkb, const char* raddr, uint8_t rlen, const char* data, size_t dlen);
+	void message_init(g0::message* pkb, const g0::id_t* raddr, uint8_t rlen, const char* data, size_t dlen);
 	void message_parse(g0::message* pkb, char* data, size_t size);
+	
+	id_t read_stage(g0::message* msg);
+	void mark_stage(g0::message* pkb, id_t id);
 	void transport(g0::message* pkb, id_t sid);
+	void buserror(g0::message* pkb, id_t sid);
 
 	class service {
 	public:
