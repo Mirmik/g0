@@ -7,6 +7,7 @@ from licant.libs import include
 include("gxx")
 
 application("target",
+	target = "g0_udp_handshake",
 	sources = ["main.cpp"],
 	include_paths = ["."],
 

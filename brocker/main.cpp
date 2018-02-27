@@ -13,6 +13,9 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include <thread>
+#include <chrono>
+
 gxx::log::stdout_target constgt;
 gxx::log::logger syslog("syslog");
 
@@ -69,5 +72,9 @@ int main(int argc, char* argv[]) {
 	fcntl(ufd,F_SETFL,fcntl(ufd,F_GETFL) | O_NONBLOCK | O_ASYNC); 
    	signal(SIGUSR1, udp_gate_callback_handler);
 
-   	while(1);
+   	while(1) {
+	    using namespace std::chrono_literals;
+   		std::this_thread::sleep_for(5000ms);
+   		gxx::println("service worker");
+   	};
 }
