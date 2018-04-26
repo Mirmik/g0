@@ -14,11 +14,11 @@ application("target",
 		submodule("g0.base"),
 		submodule("g0.inet"),
 
-		submodule("gxx"),
-		submodule("gxx.inet", "unix"),
+		submodule("gxx", "posix"),
+		submodule("gxx.inet", "posix"),
 		submodule("gxx.print", "cout"),
 		submodule("gxx.dprint", "cout"),
-		submodule("gxx.log", "unix"),
+		submodule("gxx.log", "posix"),
 	]
 )
 

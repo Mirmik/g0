@@ -2,10 +2,7 @@
 #include <g0/test_service.h>
 #include <g0/gate/udp.h>
 
-#include <fcntl.h>
-#include <signal.h>
-
-#include <unistd.h>
+#include <gxx/osutil/signal.h>
 
 g0::test_service test0("test");
 g0::udp_gate ugate(11002);
@@ -17,11 +14,8 @@ void signal_callback_handler(int sig) {
 
 int main() {
 	int ufd = ugate.get_fd();
-
-	fcntl(ufd, F_SETOWN, getpid());
-	fcntl(ufd, F_SETSIG, SIGUSR1);
-	fcntl(ufd,F_SETFL,fcntl(ufd,F_GETFL) | O_NONBLOCK | O_ASYNC); 
-   	signal(SIGUSR1, signal_callback_handler);
+	gxx::osutil::setsig(ufd, SIGUSR1);
+	gxx::osutil::signal(SIGUSR1, signal_callback_handler);
 
 	g0::registry_service(&test0, 6);
 	g0::registry_service(&ugate, 7);

@@ -9,9 +9,8 @@
 #include <gxx/log/logger.h>
 #include <gxx/log/targets/stdout.h>
 
-#include <fcntl.h>
-#include <signal.h>
-#include <unistd.h>
+#include <gxx/osutil/signal.h>
+#include <gxx/osutil/fd.h>
 
 #include <thread>
 #include <chrono>
@@ -66,11 +65,8 @@ int main(int argc, char* argv[]) {
 	ugate.init(uport);
 
 	//Перевод UDP шлюза в сигнальный режим.
-	int ufd = ugate.get_fd();
-	fcntl(ufd, F_SETOWN, getpid());
-	fcntl(ufd, F_SETSIG, SIGUSR1);
-	fcntl(ufd,F_SETFL,fcntl(ufd,F_GETFL) | O_NONBLOCK | O_ASYNC); 
-   	signal(SIGUSR1, udp_gate_callback_handler);
+	gxx::osutil::setsig(ugate.get_fd(), SIGUSR1);
+   	gxx::osutil::signal(SIGUSR1, udp_gate_callback_handler);
 
    	while(1) {
 	    using namespace std::chrono_literals;
