@@ -4,10 +4,10 @@ from licant.libs import include
 include("gxx")
 
 module("g0.base",
-	include_paths = ["include"],
+	include_paths = ["."],
 	sources = [
-		"src/service.cpp",
-		"src/test.cpp",
+		"./g0/src/service.cpp",
+		"./g0/src/test.cpp",
 	],
 
 	include_modules = [
@@ -17,6 +17,6 @@ module("g0.base",
 
 module("g0.inet",
 	sources = [
-		"src/udpgate.cpp",
+		"./g0/src/udpgate.cpp",
 	],
 )

@@ -1,4 +1,5 @@
 #include <g0/service.h>
+#include <g0/kernel.h>
 #include <stdlib.h>
 #include <string.h>
 
