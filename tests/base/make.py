@@ -19,10 +19,12 @@ application("target",
 		
 		("gxx", "posix"),
 		("gxx.log2"),
+		("gxx.inet", "posix"),
 		("gxx.print", "cout"),
 		("gxx.dprint", "cout"),
 		("gxx.atomic_section", "mutex"),
-	]
+	],
+	cxx_flags = ""
 )
 
 licant.ex("target")
