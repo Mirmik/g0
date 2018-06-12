@@ -1,6 +1,7 @@
 #include <g0/core.h>
 #include <g1/packet.h>
 #include <g1/tower.h>
+#include <g1/indexes.h>
 #include <gxx/print.h>
 
 gxx::log::logger g0::logger("g0");
@@ -28,6 +29,7 @@ void g0::send(uint16_t sid, g0::service_address& raddr, const char* data, size_t
 	*pack->dataptr() = sid;
 	*(pack->dataptr() + 1) = raddr.id;
 	pack->block->qos = (g1::QoS)raddr.qos;
+	pack->block->type = G1_G0TYPE;
 	memcpy(pack->dataptr() + 2, data, size);
 	memcpy(pack->addrptr(), raddr.g1addr.data(), raddr.g1addr.size());
 	g1::transport(pack);
