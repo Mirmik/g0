@@ -22,7 +22,7 @@ application("target",
 		("gxx.inet", "posix"),
 		("gxx.print", "cout"),
 		("gxx.dprint", "cout"),
-		("gxx.atomic_section", "mutex"),
+		("gxx.syslock", "mutex"),
 	],
 	cxx_flags = "",
 	libs = ["pthread"]

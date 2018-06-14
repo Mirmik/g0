@@ -9,6 +9,7 @@
 g1::udpgate udpgate;
 
 void udplisten();
+void g1execute();
 void incoming_handler(g1::packet* pack);
 
 struct brocker_service : public g0::service {
@@ -31,7 +32,9 @@ int main() {
 	g1::incoming_handler = incoming_handler;
 
 	std::thread thr(udplisten);
+	std::thread thrg1(g1execute);
 	thr.join();
+	thrg1.join();
 }
 
 void udplisten() {
@@ -42,7 +45,12 @@ void incoming_handler(g1::packet* pack) {
 	gxx::println("incoming handler");
 	if (pack->block->type == G1_G0TYPE) {
 		gxx::println("g1g0");
+		g1::release(pack);
 	} else {
 		g1::release(pack);
 	}
+}
+
+void g1execute() {
+	while(1) g1::one_thread_execute();
 }
