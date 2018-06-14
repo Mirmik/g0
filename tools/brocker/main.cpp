@@ -14,7 +14,8 @@ void incoming_handler(g1::packet* pack);
 
 struct brocker_service : public g0::service {
 	void incoming_message(g0::message* msg) override {
-		gxx::println("brocker incoming");
+		gxx::fprintln("brocker incoming, data:{}", gxx::buffer(msg->data, msg->size));
+		g0::utilize(msg);
 	}
 } brocker;
 
@@ -45,7 +46,7 @@ void incoming_handler(g1::packet* pack) {
 	gxx::println("incoming handler");
 	if (pack->block->type == G1_G0TYPE) {
 		gxx::println("g1g0");
-		g1::release(pack);
+		g0::travell(pack);
 	} else {
 		g1::release(pack);
 	}

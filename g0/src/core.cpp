@@ -35,19 +35,28 @@ void g0::send(uint16_t sid, g0::service_address& raddr, const char* data, size_t
 	g1::transport(pack);
 }
 
+void g0::travell(g1::packet* pack) {
+	g0::message* msg = (g0::message*) malloc(sizeof(g0::message));
+	dlist_init(&msg->lnk);
+	msg -> pack = pack;
+	msg -> sid = pack->datasect()[0];
+	msg -> rid = pack->datasect()[1];
+	msg -> data = pack->dataptr() + 2;
+	msg -> size = pack->datasize() - 2;
+	gxx::println(msg->sid, msg->rid, msg->size);
+	g0::transport(msg);
+}
+
 void g0::utilize(g0::message* msg) {
-	if (!msg->pack) {
-		dlist_del(&msg->lnk);
-		free(msg->data);
-		free(msg);
-	} else {
-		gxx::panic("todo");
-	}
+	dlist_del(&msg->lnk);
+	if (!msg->pack) free(msg->data); 
+	else g1::release(msg->pack);
+	free(msg);	
 }
 
 void g0::transport(g0::message* msg) {
-	if (msg->pack == nullptr) {
-		g0::logger.debug("transport local message sid:{}, rid:{}, data:{}", msg->sid, msg->rid, msg->datasect());
+	//if (msg->pack == nullptr) {
+	//	g0::logger.debug("transport local message sid:{}, rid:{}, data:{}", msg->sid, msg->rid, msg->datasect());
 		for ( auto& srvs: g0::services ) {
 			if (srvs.id == msg->rid) {
 				g0::logger.debug("to {} rid", srvs.id);
@@ -57,7 +66,7 @@ void g0::transport(g0::message* msg) {
 		}
 		g0::logger.debug("unresolved service. utilize message");
 		g0::utilize(msg);
-	}
+	//}
 }
 
 void g0::link_service(g0::service* srvs, uint16_t id) {
