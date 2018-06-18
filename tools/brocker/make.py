@@ -5,7 +5,8 @@ import licant
 from licant.cxx_modules import application
 from licant.libs import include
 
-licant.execute("../../g0.g.py")
+licant.libs.include("g0")
+licant.libs.include("g1")
 licant.libs.include("gxx")
 
 application("target", 
@@ -25,7 +26,8 @@ application("target",
 		("gxx.syslock", "mutex"),
 	],
 	cxx_flags = "",
-	libs = ["pthread"]
+	libs = ["pthread"],
+	include_paths = ["."]
 )
 
 licant.ex("target")
