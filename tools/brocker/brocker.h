@@ -29,6 +29,11 @@ struct Subscriber {
 	void notify(const Theme* theme, const char* data, size_t size) const {
 		std::string str0 = gxx::serialstr8(theme->name);
 		std::string str1 = gxx::serialstr8(data, size);
+
+
+		gxx::print_dump(str0.data(), str0.size());
+		gxx::print_dump(str1.data(), str1.size());
+
 		gxx::iovec vec[] = {
 			{str0.data(), str0.size()},
 			{str1.data(), str1.size()},

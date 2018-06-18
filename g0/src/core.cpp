@@ -32,7 +32,8 @@ void g0::send(uint16_t sid, uint16_t rid, gxx::iovec* beg, gxx::iovec* end) {
 	msg -> data = (char*) malloc(sz);
 
 	char* dataiter = msg->data;
-	for (auto it = beg; it != end; ++it) dataiter = (char*)memcpy(dataiter, it->data, it->size);
+	for (auto it = beg; it != end; ++it) 
+		dataiter = (char*)memcpy(dataiter, it->data, it->size) + it->size;
 	
 	msg -> size = sz;
 
@@ -66,7 +67,9 @@ void g0::send(uint16_t sid, const g0::service_address& raddr, gxx::iovec* beg, g
 	pack->block->type = G1_G0TYPE;
 	
 	char* dataiter = pack->dataptr() + 2;
-	for (auto it = beg; it != end; ++it) dataiter = (char*)memcpy(dataiter, it->data, it->size);
+	for (auto it = beg; it != end; ++it) 
+		dataiter = (char*)memcpy(dataiter, it->data, it->size) + it->size;
+	gxx::print_dump(pack->dataptr(), sz + 2);
 
 	memcpy(pack->addrptr(), raddr.g1addr.data(), raddr.g1addr.size());
 	g1::transport(pack);
