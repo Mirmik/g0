@@ -64,12 +64,13 @@ void g0::send(uint16_t sid, const g0::service_address& raddr, const char* data, 
 	g1::transport(pack);
 }
 
-void g0::send(uint16_t sid, uint16_t rid, const char* addr, size_t asize, const char* data, size_t dsize, g1::QoS qos) {
+void g0::send(uint16_t sid, uint16_t rid, const char* addr, size_t asize, const char* data, size_t dsize, g1::QoS qos, uint16_t ackquant) {
 	auto pack = g1::create_packet(nullptr, asize, dsize + 2);
 	*pack->dataptr() = sid;
 	*(pack->dataptr() + 1) = rid;
 	pack->header.qos = qos;
 	pack->header.type = G1_G0TYPE;
+	pack->header.ackquant = ackquant;
 	memcpy(pack->dataptr() + 2, data, dsize);
 	memcpy(pack->addrptr(), addr, asize);
 	g1::transport(pack);

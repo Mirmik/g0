@@ -38,7 +38,7 @@ namespace g0 {
 	void send(uint16_t sid, uint16_t rid, const char* raddr, size_t rlen, iovec* vec);
 	void send(uint16_t sid, uint16_t rid, gxx::iovec* vec, gxx::iovec* evec);
 	void send(uint16_t sid, uint16_t rid, const char* data, size_t size);
-	void send(uint16_t sid, uint16_t rid, const char* addr, size_t asize, const char* data, size_t dsize, g1::QoS qos);
+	void send(uint16_t sid, uint16_t rid, const char* addr, size_t asize, const char* data, size_t dsize, g1::QoS qos, uint16_t ackquant = 20);
 	void send(uint16_t sid, const g0::service_address& raddr, const char* data, size_t size, g1::QoS qos = (g1::QoS)0);
 	void send(uint16_t sid, const g0::service_address& raddr, gxx::iovec* vec, gxx::iovec* evec, g1::QoS qos = (g1::QoS)0);
 
