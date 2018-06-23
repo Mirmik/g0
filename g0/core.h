@@ -15,13 +15,10 @@ namespace g0 {
 
 	struct service_address {
 		uint16_t id;
-		//uint8_t qos = 0;
-		std::string g1addr; 
+		gxx::buffer raddr;
 	
-		bool operator!=(const g0::service_address& oth) const { return id != oth.id || g1addr != oth.g1addr; }
-		bool operator==(const g0::service_address& oth) const { return id == oth.id && g1addr == oth.g1addr; }
-
-
+		bool operator!=(const g0::service_address& oth) const { return id != oth.id || raddr != oth.raddr; }
+		bool operator==(const g0::service_address& oth) const { return id == oth.id && raddr == oth.raddr; }
 	};
 
 	///Для построения сообщения.
@@ -34,28 +31,31 @@ namespace g0 {
 	void travell(g1::packet* pack);
 
 	void transport(g0::message* msg);
+	//void retrans(g0::message* msg);
 	void utilize(g0::message* msg);
+	g0::message* create_message();
 
 	void send(uint16_t sid, uint16_t rid, const char* raddr, size_t rlen, iovec* vec);
 	void send(uint16_t sid, uint16_t rid, gxx::iovec* vec, gxx::iovec* evec);
 	void send(uint16_t sid, uint16_t rid, const char* data, size_t size);
+	void send(uint16_t sid, uint16_t rid, const char* addr, size_t asize, const char* data, size_t dsize, g1::QoS qos);
 	void send(uint16_t sid, const g0::service_address& raddr, const char* data, size_t size, g1::QoS qos = (g1::QoS)0);
 	void send(uint16_t sid, const g0::service_address& raddr, gxx::iovec* vec, gxx::iovec* evec, g1::QoS qos = (g1::QoS)0);
 
-	static inline service_address remoteaddr(const g0::message* msg) {
+	/*static inline service_address remoteaddr(const g0::message* msg) {
 		service_address addr;
 		addr.id = msg->rid;
 		addr.g1addr = std::string(msg->pack->addrptr(), msg->pack->block->alen);
 		return addr;
-	}
+	}*/
 }
 
-namespace std {
+/*namespace std {
 	template <> struct hash<g0::service_address> {
 		std::size_t operator()(const g0::service_address& k) const {
 			return (std::hash<uint16_t>()(k.id) << 1) ^ std::hash<std::string>()(k.g1addr);
 		}
 	};
-}
+}*/
 
 #endif

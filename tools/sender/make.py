@@ -6,6 +6,7 @@ from licant.cxx_modules import application
 from licant.libs import include
 
 licant.execute("../../g0.g.py")
+licant.libs.include("g1")
 licant.libs.include("gxx")
 
 application("target", 
@@ -18,11 +19,12 @@ application("target",
 		("g0"),
 		
 		("gxx", "posix"),
-		("gxx.log2"),
+		("gxx.log2", "impl"),
 		("gxx.inet", "posix"),
 		("gxx.print", "cout"),
 		("gxx.dprint", "cout"),
 		("gxx.syslock", "mutex"),
+		("gxx.serial"),
 	],
 	cxx_flags = "",
 	libs = ["pthread"]
