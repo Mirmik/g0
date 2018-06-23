@@ -34,6 +34,7 @@ int main() {
 	gxx::io::file fl(ser.fd());
 	g1::serial_gstuff_gate serialgate(&fl);
 
+
 	udpgate.open(10003);
 
 	g1::link_gate(&udpgate, G1_UDPGATE);
@@ -51,7 +52,14 @@ int main() {
 	//addr.pushudp(G1_UDPGATE, "127.0.0.1", 10004);
 
 
-	sleep(2);
+	//sleep(2);
+
+	sleep(1);
+	ser.setDTR(false);
+	usleep(10000);
+	ser.setDTR(true);
+
+
 	//g0::send(0, addr, msgdata, sizeof(msgdata));
 	//g0::send(0, 2, addr.data(), addr.size(), "HelloWorld", 10, g1::QoS(0));
 
