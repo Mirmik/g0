@@ -5,11 +5,11 @@ import licant
 from licant.cxx_modules import application
 from licant.libs import include
 
-licant.execute("../../g0.g.py")
+licant.libs.include("g0")
 licant.libs.include("g1")
 licant.libs.include("gxx")
 
-application("g0send", 
+application("target", 
 	sources = ["main.cpp"],
 	include_modules = [
 		("g1"),
@@ -24,10 +24,10 @@ application("g0send",
 		("gxx.print", "cout"),
 		("gxx.dprint", "cout"),
 		("gxx.syslock", "mutex"),
-		("gxx.serial"),
 	],
 	cxx_flags = "",
-	libs = ["pthread"]
+	libs = ["pthread"],
+	include_paths = ["."]
 )
 
-licant.ex("g0send")
+licant.ex("target")

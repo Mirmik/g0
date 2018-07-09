@@ -6,7 +6,7 @@
 #include <gxx/syslock.h>
 
 gxx::log::logger g0::logger("g0");
-gxx::dlist<g0::service, &g0::service::lnk> g0::services;
+gxx::dlist<g0::basic_service, &g0::basic_service::lnk> g0::services;
 
 g0::message* g0::create_message() {
 	gxx::system_lock();
@@ -64,7 +64,7 @@ void g0::send(uint16_t sid, const g0::service_address& raddr, const char* data, 
 	g1::transport(pack);
 }
 
-void g0::send(uint16_t sid, uint16_t rid, const char* addr, size_t asize, const char* data, size_t dsize, g1::QoS qos, uint16_t ackquant) {
+void g0::send(uint16_t sid, uint16_t rid, const uint8_t* addr, size_t asize, const char* data, size_t dsize, g1::QoS qos, uint16_t ackquant) {
 	auto pack = g1::create_packet(nullptr, asize, dsize + 2);
 	*pack->dataptr() = sid;
 	*(pack->dataptr() + 1) = rid;
@@ -137,7 +137,7 @@ void g0::transport(g0::message* msg) {
 			return;
 		}
 	}
-	//g0::logger.debug("unresolved service. utilize message");
+	//g0::logger.debug("unresolved basic_service. utilize message");
 	g0::utilize(msg);
 }
 
@@ -154,7 +154,18 @@ void g0::transport(g0::message* msg) {
 	}
 }*/
 
-void g0::link_service(g0::service* srvs, uint16_t id) {
+void g0::link_service(g0::basic_service* srvs, uint16_t id) {
 	srvs->id = id;
 	g0::services.move_back(*srvs);
+}
+
+
+g0::service* g0::make_service(int idx, gxx::delegate<void, g0::message*> dlg) {
+	g0::service* srvs = new g0::service(dlg);
+	g0::link_service(srvs, idx);
+}
+
+void g0::answer(g0::message* msg, const char* data, size_t sz) {
+	if (msg->pack == nullptr) g0::send(msg->rid, msg->sid, data, sz);
+	else g0::send(msg->rid, msg->sid, msg->pack->addrptr(), msg->pack->header.alen, data, sz, g1::QoS(2));		
 }

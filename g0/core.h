@@ -11,7 +11,7 @@ namespace g1 { struct packet; }
 namespace g0 {
 
 	extern gxx::log::logger logger;
-	extern gxx::dlist<g0::service, &g0::service::lnk> services;
+	extern gxx::dlist<g0::basic_service, &g0::basic_service::lnk> services;
 
 	struct service_address {
 		uint16_t id;
@@ -25,7 +25,7 @@ namespace g0 {
 	struct iovec { const void* data; size_t size; };
 
 	/// Добавить сервис к ядру.
-	void link_service(g0::service* srvs, uint16_t id);
+	void link_service(g0::basic_service* srvs, uint16_t id);
 
 	/// Обработка пакета, поступившего в ядро через систему g1.
 	void travell(g1::packet* pack);
@@ -38,9 +38,11 @@ namespace g0 {
 	void send(uint16_t sid, uint16_t rid, const char* raddr, size_t rlen, iovec* vec);
 	void send(uint16_t sid, uint16_t rid, gxx::iovec* vec, gxx::iovec* evec);
 	void send(uint16_t sid, uint16_t rid, const char* data, size_t size);
-	void send(uint16_t sid, uint16_t rid, const char* addr, size_t asize, const char* data, size_t dsize, g1::QoS qos, uint16_t ackquant = 20);
+	void send(uint16_t sid, uint16_t rid, const uint8_t* addr, size_t asize, const char* data, size_t dsize, g1::QoS qos, uint16_t ackquant = 20);
 	void send(uint16_t sid, const g0::service_address& raddr, const char* data, size_t size, g1::QoS qos = (g1::QoS)0);
 	void send(uint16_t sid, const g0::service_address& raddr, gxx::iovec* vec, gxx::iovec* evec, g1::QoS qos = (g1::QoS)0);
+
+	void answer(g0::message* msg, const char* data, size_t sz);
 
 	/*static inline service_address remoteaddr(const g0::message* msg) {
 		service_address addr;

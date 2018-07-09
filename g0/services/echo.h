@@ -6,7 +6,7 @@
 
 namespace g0 {
 
-	struct echo_service : public service {
+	struct echo_service : public basic_service {
 		bool quite;
 		echo_service(bool quite = false) : quite(quite) {}
 		void incoming_message(g0::message* msg) override {
