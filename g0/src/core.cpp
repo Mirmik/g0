@@ -120,39 +120,16 @@ void g0::utilize(g0::message* msg) {
 	gxx::system_unlock();
 }
 
+///@todo разделить транспорт и поиск порта в разные функции.
 void g0::transport(g0::message* msg) {
-	/*if (msg->pack != nullptr) {
-		msg->pack->header.stg = 0;
-		msg->pack->dataptr()[0] = msg->sid;
-		msg->pack->dataptr()[1] = msg->rid;
-		g1::travel(msg->pack);
-		msg->pack = nullptr;
-		g0::utilize(msg);
-	}*/
-
 	for ( auto& srvs: g0::services ) {
 		if (srvs.id == msg->rid) {
-			//g0::logger.debug("to {} rid", srvs.id);
 			srvs.incoming_message(msg);
 			return;
 		}
 	}
-	//g0::logger.debug("unresolved basic_service. utilize message");
 	g0::utilize(msg);
 }
-
-/*void g0::retrans(g0::message* msg) {
-	if (msg->pack != nullptr) {
-		msg->pack->dataptr()[0] = msg->sid;
-		msg->pack->dataptr()[1] = msg->rid;
-		g1::transport(msg->pack);
-		msg->pack = nullptr;
-		g0::utilize(msg);
-	}
-	else {
-		transport(msg);
-	}
-}*/
 
 void g0::link_service(g0::basic_service* srvs, uint16_t id) {
 	srvs->id = id;
