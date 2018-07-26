@@ -1,61 +1,38 @@
 #ifndef G0_CORE_H
 #define G0_CORE_H
 
-#include <g0/service.h>
-#include <gxx/log/logger2.h>
 #include <gxx/container/dlist.h>
 #include <gxx/datastruct/iovec.h>
 #include <g1/packet.h>
 
-namespace g1 { struct packet; }
 namespace g0 {
-
-	extern gxx::log::logger logger;
-	extern gxx::dlist<g0::service, &g0::service::lnk> services;
-
-	struct service_address {
+	struct service {
+		dlist_head lnk;
 		uint16_t id;
-		//uint8_t qos = 0;
-		std::string g1addr; 
-	
-		bool operator!=(const g0::service_address& oth) const { return id != oth.id || g1addr != oth.g1addr; }
-		bool operator==(const g0::service_address& oth) const { return id == oth.id && g1addr == oth.g1addr; }
-
-
+		virtual void incoming_packet(g1::packet* pack) = 0;
+		service() { dlist_init(&lnk); }
 	};
 
-	///Для построения сообщения.
-	struct iovec { const void* data; size_t size; };
+	struct subheader {
+		uint16_t sid;
+		uint16_t rid;		
+	} G1_PACKED;
+
+	static inline subheader* get_subheader(g1::packet* pack) {
+		return (subheader*) pack->dataptr();
+	}
+
+	static inline gxx::buffer get_datasect(g1::packet* pack) {
+		return gxx::buffer(pack->dataptr() + sizeof(subheader), pack->datasize() - sizeof(subheader));
+	}	
+
+	extern gxx::dlist<g0::service, &g0::service::lnk> services;
 
 	/// Добавить сервис к ядру.
 	void link_service(g0::service* srvs, uint16_t id);
+	void incoming(g1::packet* pack);
 
-	/// Обработка пакета, поступившего в ядро через систему g1.
-	void travell(g1::packet* pack);
-
-	void transport(g0::message* msg);
-	void utilize(g0::message* msg);
-
-	void send(uint16_t sid, uint16_t rid, const char* raddr, size_t rlen, iovec* vec);
-	void send(uint16_t sid, uint16_t rid, gxx::iovec* vec, gxx::iovec* evec);
-	void send(uint16_t sid, uint16_t rid, const char* data, size_t size);
-	void send(uint16_t sid, const g0::service_address& raddr, const char* data, size_t size, g1::QoS qos = (g1::QoS)0);
-	void send(uint16_t sid, const g0::service_address& raddr, gxx::iovec* vec, gxx::iovec* evec, g1::QoS qos = (g1::QoS)0);
-
-	static inline service_address remoteaddr(const g0::message* msg) {
-		service_address addr;
-		addr.id = msg->rid;
-		addr.g1addr = std::string(msg->pack->addrptr(), msg->pack->block->alen);
-		return addr;
-	}
-}
-
-namespace std {
-	template <> struct hash<g0::service_address> {
-		std::size_t operator()(const g0::service_address& k) const {
-			return (std::hash<uint16_t>()(k.id) << 1) ^ std::hash<std::string>()(k.g1addr);
-		}
-	};
+	void __send(uint16_t sid, uint16_t rid, const uint8_t* raddr, size_t rlen, const char* data, size_t size, g1::QoS qos);
 }
 
 #endif

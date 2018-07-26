@@ -1,112 +1,51 @@
 #include <g0/core.h>
-#include <g1/packet.h>
+#include <g0/services/test.h>
+#include <g0/services/action.h>
 #include <g1/tower.h>
 #include <g1/indexes.h>
 #include <gxx/print.h>
 
-gxx::log::logger g0::logger("g0");
 gxx::dlist<g0::service, &g0::service::lnk> g0::services;
 
-void g0::send(uint16_t sid, uint16_t rid, const char* data, size_t size) {
-	g0::message* msg = (g0::message*) malloc(sizeof(g0::message));
-	dlist_init(&msg->lnk);
-	msg -> sid = sid;
-	msg -> rid = rid;
-	msg -> pack = nullptr;
-	msg -> data = (char*) malloc(size);
-	memcpy(msg->data, data, size);
-	msg -> size = size;
+void g0::__send(uint16_t sid, uint16_t rid, const uint8_t* raddr, size_t rsize, const char* data, size_t size, g1::QoS qos) {		
+	g0::subheader sh;
+	sh.sid = sid;
+	sh.rid = rid;
 
-	g0::transport(msg);
+	gxx::iovec iov[2] = {
+		{ &sh, sizeof(sh) },
+		{ data, size }
+	};
+
+	g1::send(raddr, rsize, iov, 2, G1_G0TYPE, qos);
 }
 
-void g0::send(uint16_t sid, uint16_t rid, gxx::iovec* beg, gxx::iovec* end) {
-	size_t sz = 0;
-	for (auto it = beg; it != end; ++it) sz += it->size;
 
-	g0::message* msg = (g0::message*) malloc(sizeof(g0::message));
-	dlist_init(&msg->lnk);
-	msg -> sid = sid;
-	msg -> rid = rid;
-	msg -> pack = nullptr;
-	msg -> data = (char*) malloc(sz);
-
-	char* dataiter = msg->data;
-	for (auto it = beg; it != end; ++it) 
-		dataiter = (char*)memcpy(dataiter, it->data, it->size) + it->size;
-	
-	msg -> size = sz;
-
-	g0::transport(msg);
-}
-
-void g0::send(uint16_t sid, const g0::service_address& raddr, const char* data, size_t size, g1::QoS qos) {
-	if (raddr.g1addr.size() == 0) return g0::send(sid, raddr.id, data, size);
-	auto block = g1::create_block(raddr.g1addr.size(), size + 2);
-	auto pack = g1::create_packet(nullptr, block);
-	*pack->dataptr() = sid;
-	*(pack->dataptr() + 1) = raddr.id;
-	pack->block->qos = qos;
-	pack->block->type = G1_G0TYPE;
-	memcpy(pack->dataptr() + 2, data, size);
-	memcpy(pack->addrptr(), raddr.g1addr.data(), raddr.g1addr.size());
-	g1::transport(pack);
-}
-
-void g0::send(uint16_t sid, const g0::service_address& raddr, gxx::iovec* beg, gxx::iovec* end, g1::QoS qos) {
-	if (raddr.g1addr.size() == 0) return g0::send(sid, raddr.id, beg, end);
-	
-	size_t sz = 0;
-	for (auto it = beg; it != end; ++it) sz += it->size;
-
-	auto block = g1::create_block(raddr.g1addr.size(), sz + 2);
-	auto pack = g1::create_packet(nullptr, block);
-	*pack->dataptr() = sid;
-	*(pack->dataptr() + 1) = raddr.id;
-	pack->block->qos = qos;
-	pack->block->type = G1_G0TYPE;
-	
-	char* dataiter = pack->dataptr() + 2;
-	for (auto it = beg; it != end; ++it) 
-		dataiter = (char*)memcpy(dataiter, it->data, it->size) + it->size;
-	gxx::print_dump(pack->dataptr(), sz + 2);
-
-	memcpy(pack->addrptr(), raddr.g1addr.data(), raddr.g1addr.size());
-	g1::transport(pack);
-}
-
-void g0::travell(g1::packet* pack) {
-	g0::message* msg = (g0::message*) malloc(sizeof(g0::message));
-	dlist_init(&msg->lnk);
-	msg -> pack = pack;
-	msg -> sid = pack->datasect()[0];
-	msg -> rid = pack->datasect()[1];
-	msg -> data = pack->dataptr() + 2;
-	msg -> size = pack->datasize() - 2;
-
-	g0::transport(msg);
-}
-
-void g0::utilize(g0::message* msg) {
-	dlist_del(&msg->lnk);
-	if (!msg->pack) free(msg->data); 
-	else g1::release(msg->pack);
-	free(msg);	
-}
-
-void g0::transport(g0::message* msg) {
+void g0::incoming(g1::packet* pack) {
+	auto sh = get_subheader(pack);
 	for ( auto& srvs: g0::services ) {
-		if (srvs.id == msg->rid) {
-			g0::logger.debug("to {} rid", srvs.id);
-			srvs.incoming_message(msg);
+		if (srvs.id == sh->rid) {
+			srvs.incoming_packet(pack);
 			return;
 		}
 	}
-	g0::logger.debug("unresolved service. utilize message");
-	g0::utilize(msg);
+	gxx::println("g0: unresolved service. release packet");
+	g1::release(pack);	
 }
 
-void g0::link_service(g0::service* srvs, uint16_t id) {
-	srvs->id = id;
-	g0::services.move_back(*srvs);
+void g0::link_service(g0::service* srv, uint16_t id) {
+	srv->id = id;
+	g0::services.move_back(*srv);
+}
+
+g0::test_service* g0::create_test_service(int port) {
+	auto tsrv = new g0::test_service();
+	g0::link_service(tsrv, port);
+	return tsrv;
+}
+
+g0::action_service* g0::create_action_service(int port, gxx::delegate<void, g1::packet*> dlg) {
+	auto asrv = new g0::action_service(dlg);
+	g0::link_service(asrv, port);
+	return asrv;
 }

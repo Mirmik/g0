@@ -5,8 +5,9 @@ import licant
 from licant.cxx_modules import application
 from licant.libs import include
 
-licant.execute("../../g0.g.py")
 licant.libs.include("gxx")
+licant.libs.include("g0")
+licant.libs.include("g1")
 
 application("target", 
 	sources = ["main.cpp"],
@@ -18,11 +19,10 @@ application("target",
 		("g0"),
 		
 		("gxx", "posix"),
-		("gxx.log2"),
 		("gxx.inet", "posix"),
 		("gxx.print", "cout"),
 		("gxx.dprint", "cout"),
-		("gxx.atomic_section", "mutex"),
+		("gxx.syslock", "mutex"),
 	],
 	cxx_flags = ""
 )
