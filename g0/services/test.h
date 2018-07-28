@@ -8,6 +8,7 @@
 
 namespace g0 {
 
+<<<<<<< HEAD
 	struct test_service : public service {
 		void incoming_packet(g1::packet* pack) override {
 			auto sh = g0::get_subheader(pack);
@@ -16,6 +17,11 @@ namespace g0 {
 			gxx::fprintln("subheader: sid={}, rid={}", sh->sid, sh->rid);
 			gxx::fprintln("datasect: {}", gxx::dstring(data));
 			g1::release(pack);
+=======
+	struct test_service : public basic_service {
+		void incoming_message(g0::message* msg) override {
+			gxx::fprintln("test service incoming_message from:{} {}", msg->rid, gxx::buffer(msg->data, msg->size));
+>>>>>>> 08a606d12e8d590f6fb295ab9b8b036946e70521
 		}
 	};
 
